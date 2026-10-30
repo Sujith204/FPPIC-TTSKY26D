@@ -1,97 +1,85 @@
-# FPPIC — Four Protocol Peripheral Interface Chip
+# FPPIC — Tiny Tapeout SKY130 / TTSKY26d
 
-**Target shuttle:** Tiny Tapeout SKY26D (SKY130A / ChipFoundry CI-2612)  
-**Top module:** `tt_um_fppic`  
-**RTL language:** Verilog  
-**Clock:** 50 MHz (`clk`, 20 ns period)  
-**Requested geometry:** `6x1` (custom request; see the submission blocker below)
+FPPIC (Four Protocol Peripheral Interface Chip) is a Verilog Tiny Tapeout user
+module. It selects an I²C or CAN host and routes requests through a Wishbone
+interconnect to SPI Flash and UART peripherals.
 
-FPPIC is a Tiny Tapeout user module that selects an I²C or CAN host interface and routes host requests through a Wishbone interconnect to SPI Flash and UART peripherals. This repository contains the complete FPPIC project package supplied for SKY26D; it is separate from the standalone `SPI_To_CAN` repository.
+## Target configuration
 
-## Architecture at a glance
+| Item | Configuration |
+|---|---|
+| Shuttle target | TTSKY26d / SKY130A |
+| Top module | `tt_um_fppic` |
+| Allocation requested in metadata | `3x2` = six tiles (3 columns × 2 rows) |
+| Clock | 50 MHz (`CLOCK_PERIOD: 20` ns) |
+| Placement target density | 60% (`PL_TARGET_DENSITY_PCT: 60`) |
 
-- **Host selection:** `ui_in[0]` selects I²C when high and CAN when low.
-- **I²C host:** four address straps are provided on `ui_in[4:1]`; SDA and SCL use `uio[0]` and `uio[1]` with open-drain low-drive behavior and SCL clock stretching.
-- **CAN host:** CAN RXD is received on `ui_in[5]`; CAN TXD is driven on `uo_out[0]`. An external CAN transceiver is required for connection to a physical CAN bus.
-- **Wishbone fabric:** host requests are selected and routed through the Wishbone interconnect and control/status registers.
-- **SPI Flash:** the SPI master uses `uo_out[1]` (CS_N), `uo_out[2]` (SCLK), `uo_out[3]` (MOSI), and `ui_in[6]` (MISO). The target is an external W25Q64-compatible SPI NOR Flash device.
-- **UART:** UART RX is on `ui_in[7]` and UART TX is on `uo_out[4]`.
-- **Interrupt:** active-low IRQ is exposed on `uo_out[5]`.
+`3x2` is a listed shape in the public Tiny Tapeout SKY Verilog template. It is
+**not** a 6x1 single-row allocation. A metadata setting is a request, not a
+booking confirmation or proof that this RTL fits. Confirm that the TTSKY26d
+portal has the same 3x2 allocation available, then run the official GitHub
+Actions flow and inspect its results before submitting.
 
-See [`docs/info.md`](docs/info.md) for the project datasheet description and [`docs/physical-design-audit.md`](docs/physical-design-audit.md) for the physical-design review record.
+## Repository contents
 
-## Repository layout
+- `src/` — synthesizable FPPIC Verilog RTL and `fppic_defs.vh`.
+- `info.yaml` — Tiny Tapeout metadata, source list, tile setting and 24-pin map.
+- `src/config.json` — SKY130 template configuration, including 20 ns clock and
+  60% placement target.
+- `test/` — Tiny Tapeout Cocotb RTL smoke test and test harness.
+- `tb/` and `sim/` — fuller Icarus Verilog benches and W25Q64 simulation model.
+- `docs/info.md` — design overview, test procedure and external hardware notes.
+- `.github/workflows/` — GDS hardening, precheck, gate-level test, docs and RTL
+  test workflows for TTSKY26d.
+- `check_tt_package.py`, `verify_all.py`, `deep_lint.py` — local static checks.
 
-```text
-FPPIC-TTSKY26D/
-├── .devcontainer/          # Development-container settings
-├── .github/workflows/      # SKY26D GDS, precheck, gate-level, docs and test CI
-├── .vscode/                # Editor recommendations
-├── docs/                   # Datasheet text and physical-design notes
-├── scripts/                # Repository publishing helper
-├── src/                    # FPPIC RTL, include header and LibreLane config
-├── test/                   # Tiny Tapeout Cocotb/Icarus test harness
-├── info.yaml               # Tiny Tapeout project metadata and pinout
-├── LICENSE
-└── README.md
-```
+## Local checks
 
-## Important SKY26D submission blocker: requested `6x1` tile
-
-The project currently preserves the requested `tiles: "6x1"` value in `info.yaml`. **The current official Tiny Tapeout SKY Verilog template lists only `1x1`, `1x2`, `2x2`, `3x2`, `4x2`, `6x2`, and `8x2` as valid values. `6x1` is not in that list.** Therefore, do not treat this repository as submission-ready until Tiny Tapeout/ChipFoundry confirms a supported custom `6x1` path, or the project owner explicitly chooses one of the supported tile sizes. Do not silently change `6x1` to `6x2`: that changes the allocation.
-
-The official template source is [`TinyTapeout/ttsky-verilog-template`](https://github.com/TinyTapeout/ttsky-verilog-template). The official SKY26D action is pinned in `.github/workflows/` to `ttsky26d`.
-
-## Build and test
-
-### Local RTL smoke test
-
-The included test harness is the Tiny Tapeout Cocotb/Icarus smoke test. It checks reset/startup and selected top-level I/O invariants; it is not a replacement for complete protocol-level regressions or the official ASIC flow.
-
-On Ubuntu/WSL with Icarus Verilog installed:
+From the repository root:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y iverilog
-python3 -m pip install -r test/requirements.txt
-cd test
-make clean
-make
+python3 check_tt_package.py
+python3 verify_all.py
+python3 deep_lint.py
+make -C sim clean
+make -C sim
+make -C sim can-rx
 ```
 
-### GitHub Actions
+The first three commands are static checks. The final two commands require
+Icarus Verilog (`iverilog` and `vvp`). Static checks do not prove functional
+correctness, timing closure, physical fit, DRC/LVS signoff, or shuttle acceptance.
 
-Pushes and manual dispatches run the workflows in `.github/workflows/`:
+## Official GitHub Actions checks
 
-- `test.yaml`: Cocotb RTL smoke test.
-- `gds.yaml`: SKY130A GDS hardening, Tiny Tapeout precheck, gate-level test, and viewer deployment.
-- `docs.yaml`: documentation build.
+After pushing to GitHub, open the **Actions** tab and inspect these jobs:
 
-A successful local smoke test does not imply that GDS hardening, the tile-size validation, precheck, gate-level test, DRC/LVS, or post-route timing have passed. Inspect the workflow results and artifacts for the exact commit submitted to the shuttle.
+1. `gds` — generates the TTSKY26d SKY130A GDS artifact.
+2. `precheck` — runs the Tiny Tapeout integration precheck.
+3. `gl_test` — runs the gate-level test.
+4. `docs` — builds the project documentation.
+5. `test` — runs the RTL Cocotb test.
 
-## Existing implementation and test assets
+All relevant jobs must pass for the exact commit you intend to submit. Download
+and retain the generated GDS artifact from the successful `gds` workflow. Do not
+substitute a generic ORFS GDS for the official Tiny Tapeout fixed-tile GDS.
 
-The RTL and test sources in `src/` and `test/` are retained from the supplied project archive; RTL behavior was not changed during repository packaging. The project owner has stated that these files have already been tested. This packaging step does not independently reproduce or certify those earlier test results. The included Cocotb test is the test asset present in this archive; no separate `tb/` or `sim/` regression directories were supplied.
+### DRC configuration note
 
-## Create the Tiny Tapeout-based GitHub repository and push
+`src/config.json` keeps `RUN_KLAYOUT_DRC: 0`, matching the published template
+default used by this package. The separate Tiny Tapeout `precheck` workflow is
+still present and must be inspected. This configuration must not be described as
+a standalone KLayout DRC or foundry signoff pass.
 
-The helper `scripts/create-and-push.ps1` creates a new repository from the official `TinyTapeout/ttsky-verilog-template`, then replaces the template working tree with this reviewed FPPIC package and pushes `main`. It uses your existing GitHub CLI login and does not request or store a personal access token.
+## Create the GitHub repository
 
-On Windows PowerShell, install Git and [GitHub CLI](https://cli.github.com/), then run `gh auth login` and `gh auth setup-git`. From this project directory run:
+See [`GITHUB_SUBMISSION_GUIDE.md`](GITHUB_SUBMISSION_GUIDE.md) for the Windows
+PowerShell steps. The ZIP is structured so its contents can be extracted
+directly into the repository root.
 
-```powershell
-.\scripts\create-and-push.ps1
-```
+## License
 
-The script defaults to a public repository. To choose private visibility, run `./scripts/create-and-push.ps1 -Visibility private`. It stops if the destination repository already exists or a Git operation fails; it does not overwrite an existing repository.
-
-## External hardware
-
-- External CAN transceiver between the logic-level CAN_TXD/CAN_RXD pins and the physical CAN bus.
-- W25Q64-compatible SPI NOR Flash.
-- I²C pull-up resistors on SDA and SCL at the board/harness level.
-- 3.3 V-compatible UART host/interface, observing the Tiny Tapeout board's electrical specifications.
-
-## Project status
-
-This is an organized SKY26D project package, not a claim of final tapeout acceptance. The custom `6x1` tile allocation is the explicit unresolved blocker. See [`docs/SKY26D_SUBMISSION_CHECKLIST.md`](docs/SKY26D_SUBMISSION_CHECKLIST.md).
+The repository includes the template's Apache-2.0 `LICENSE`. Review whether
+Apache-2.0 is appropriate for your FPPIC RTL and project contributions before
+publishing the repository publicly. Replace it with a license you are entitled
+to apply if needed.

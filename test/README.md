@@ -1,24 +1,26 @@
 # FPPIC Tiny Tapeout testbench
 
-The supplied test harness uses Cocotb and Icarus Verilog and follows the Tiny Tapeout SKY130 project layout.
+The test harness uses Cocotb and Icarus Verilog, following the Tiny Tapeout SKY130 template.
 
-## Run the RTL smoke test
+## Run RTL smoke test
 
 From this directory:
 
 ```sh
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 make clean
 make
 ```
 
-The GitHub Actions workflow installs Icarus Verilog and Python dependencies automatically. The Cocotb test checks reset/startup and selected Tiny Tapeout top-level I/O invariants. It is a smoke test, not a full protocol-level regression suite.
+The CI workflow installs Icarus Verilog automatically. It runs `test.py`, which checks reset/startup and the Tiny Tapeout top-level I/O invariants.
 
-## Gate-level simulation
+## Run gate-level simulation
 
-The official `gds` workflow runs the Tiny Tapeout gate-level test after a successful hardening step. For a local gate-level run, obtain the generated gate-level netlist from the relevant build artifacts, place it at `test/gate_level_netlist.v`, configure `PDK_ROOT` for SKY130A, then run:
+After a successful official GDS build, copy the generated power-aware gate-level netlist for `tt_um_fppic` to `test/gate_level_netlist.v`, then run:
 
 ```sh
 make clean
 make GATES=yes
 ```
+
+The official `gds` workflow also runs the gate-level test through `TinyTapeout/tt-gds-action/gl_test@ttsky26d`.

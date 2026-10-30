@@ -1,13 +1,14 @@
 # Tiny Tapeout project information
 project:
   title: "Four Protocol Peripheral Interface Chip (FPPIC)"
-  author: "Sheshadri"
+  author: "BMSIT"
   discord: ""
   description: "Tiny Tapeout user module providing I2C/CAN host access to Wishbone-connected SPI Flash and UART peripherals."
   language: "Verilog"
   clock_hz: 50000000
-  # User-requested custom geometry: six columns by one row. This is NOT in the current official SKY template size list. Confirm support with Tiny Tapeout before relying on the official build/booking.
-  tiles: "6x1"
+  # Six tiles arranged as 3 columns x 2 rows. This is a listed template size;
+  # actual fit and portal allocation must still be confirmed by the official flow.
+  tiles: "3x2"
   top_module: "tt_um_fppic"
   source_files:
     - "fppic_defs.vh"
