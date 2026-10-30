@@ -1,5 +1,7 @@
 name: test
+
 on: [push, workflow_dispatch]
+
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -13,12 +15,10 @@ jobs:
         shell: bash
         run: sudo apt-get update && sudo apt-get install -y iverilog
 
-      # Set Python up and install cocotb
       - name: Setup python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-
       - name: Install Python packages
         shell: bash
         run: pip install -r test/requirements.txt
@@ -28,8 +28,8 @@ jobs:
           cd test
           make clean
           make
-          # make will return success even if the tests fail, so check results.xml for failed tests
-          python -m cocotb_tools.check_results results.xml
+          # make may return success even when cocotb assertions failed.
+          ! grep failure results.xml
 
       - name: Test Summary
         uses: test-summary/action@v2.4

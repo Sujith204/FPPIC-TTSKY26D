@@ -1,47 +1,24 @@
-# Sample testbench for a Tiny Tapeout project
+# FPPIC Tiny Tapeout testbench
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+The supplied test harness uses Cocotb and Icarus Verilog and follows the Tiny Tapeout SKY130 project layout.
 
-## Setting up
+## Run the RTL smoke test
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and replace `tt_um_example` with your module name.
-
-## How to run
-
-To run the RTL simulation:
+From this directory:
 
 ```sh
-make -B
+python3 -m pip install -r requirements.txt
+make clean
+make
 ```
 
-To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.
+The GitHub Actions workflow installs Icarus Verilog and Python dependencies automatically. The Cocotb test checks reset/startup and selected Tiny Tapeout top-level I/O invariants. It is a smoke test, not a full protocol-level regression suite.
 
-Then run:
+## Gate-level simulation
 
-```sh
-make -B GATES=yes
-```
-
-If you wish to save the waveform in VCD format instead of FST format, edit tb.v to use `$dumpfile("tb.vcd");` and then run:
+The official `gds` workflow runs the Tiny Tapeout gate-level test after a successful hardening step. For a local gate-level run, obtain the generated gate-level netlist from the relevant build artifacts, place it at `test/gate_level_netlist.v`, configure `PDK_ROOT` for SKY130A, then run:
 
 ```sh
-make -B FST=
-```
-
-This will generate `tb.vcd` instead of `tb.fst`.
-
-## How to view the waveform file
-
-Using GTKWave
-
-```sh
-gtkwave tb.fst tb.gtkw
-```
-
-Using Surfer
-
-```sh
-surfer tb.fst
+make clean
+make GATES=yes
 ```

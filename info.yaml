@@ -1,56 +1,59 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
-
-  # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
-
-  # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
-
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
+  title: "Four Protocol Peripheral Interface Chip (FPPIC)"
+  author: "Sheshadri"
+  discord: ""
+  description: "Tiny Tapeout user module providing I2C/CAN host access to Wishbone-connected SPI Flash and UART peripherals."
+  language: "Verilog"
+  clock_hz: 50000000
+  # User-requested custom geometry: six columns by one row. This is NOT in the current official SKY template size list. Confirm support with Tiny Tapeout before relying on the official build/booking.
+  tiles: "6x1"
+  top_module: "tt_um_fppic"
   source_files:
-    - "project.v"
+    - "fppic_defs.vh"
+    - "addr_decoder.v"
+    - "can_node.v"
+    - "chip_csr.v"
+    - "glitch_filter.v"
+    - "host_mux.v"
+    - "i2c_slave.v"
+    - "reset_sync.v"
+    - "spi_master.v"
+    - "strap_latch.v"
+    - "sync_2ff.v"
+    - "sync_fifo.v"
+    - "txn_tracker.v"
+    - "uart_16550.v"
+    - "wb_interconnect.v"
+    - "tt_um_fppic.v"
 
-# The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
-
+  "ui[0]": "I2C_CAN_N strap: 1=I2C host, 0=CAN host"
+  "ui[1]": "I2C address strap bit 0"
+  "ui[2]": "I2C address strap bit 1"
+  "ui[3]": "I2C address strap bit 2"
+  "ui[4]": "I2C address strap bit 3"
+  "ui[5]": "CAN_RXD from external CAN transceiver"
+  "ui[6]": "SPI_MISO from W25Q64 Flash"
+  "ui[7]": "UART_RX"
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
-
+  "uo[0]": "CAN_TXD"
+  "uo[1]": "SPI_CS_N"
+  "uo[2]": "SPI_CLK"
+  "uo[3]": "SPI_MOSI"
+  "uo[4]": "UART_TX"
+  "uo[5]": "IRQ_N"
+  "uo[6]": "Unused, tied low"
+  "uo[7]": "Unused, tied low"
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  "uio[0]": "SDA, emulated open-drain"
+  "uio[1]": "SCL, emulated open-drain with clock stretching"
+  "uio[2]": "Unused"
+  "uio[3]": "Unused"
+  "uio[4]": "Unused"
+  "uio[5]": "Unused"
+  "uio[6]": "Unused"
+  "uio[7]": "Unused"
 
-# Do not change!
 yaml_version: 6
