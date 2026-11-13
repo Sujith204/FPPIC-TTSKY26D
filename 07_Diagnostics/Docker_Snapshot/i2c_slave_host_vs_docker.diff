@@ -1,0 +1,48 @@
+﻿diff --git "a/C:\\ASIC\\FPPIC_final_one\\01_RTL_Source\\i2c_slave.v" "b/C:\\ASIC\\FPPIC_final_one\\07_Diagnostics\\Docker_Snapshot\\i2c_slave.v"
+index 191ca83..4a02db9 100644
+--- "a/C:\\ASIC\\FPPIC_final_one\\01_RTL_Source\\i2c_slave.v"
++++ "b/C:\\ASIC\\FPPIC_final_one\\07_Diagnostics\\Docker_Snapshot\\i2c_slave.v"
+@@ -96,10 +96,11 @@ module i2c_slave (
+     localparam S_READ_TX_BITS    = 4'd9;
+     localparam S_READ_M_ACK      = 4'd10;
+     localparam S_EXTRA_BITS      = 4'd11;
+     localparam S_EXTRA_ACK       = 4'd12;
+     localparam S_IGNORE_TILL_STOP= 4'd13;
++    localparam S_WRITE_ACK_SETUP = 4'd14;
+ 
+     reg [3:0] state;
+     reg [2:0] bit_cnt;
+     reg [7:0] rx_shreg;
+     reg [7:0] tx_shreg;
+@@ -352,20 +353,29 @@ module i2c_slave (
+ 
+                         if (drive_scl_reg && !resp_empty) begin
+                             // Transaction complete!
+                             resp_rd_en <= 1'b1;
+ 
+-                            // Setup ACK or NACK on SDA while SCL is still held low
++                            // Set ACK/NACK SDA while SCL remains stretched low.
+                             if (resp_dout[15:8] == `ERR_OK) begin
+                                 drive_sda_reg   <= 1'b1; // ACK (pull SDA low)
+                                 write_had_error <= 1'b0;
+                             end else begin
+                                 drive_sda_reg   <= 1'b0; // NACK (release SDA)
+                                 write_had_error <= 1'b1;
+                             end
+ 
+-                            // Release SCL for the 9th clock (ACK clock)
++                            // Wait for filtered SDA before releasing SCL.
++                            state <= S_WRITE_ACK_SETUP;
++                        end
++                    end
++
++                    // Wait until filtered SDA reaches the intended ACK/NACK level.
++                    // SCL stays low so this SDA transition cannot look like START/STOP.
++                    S_WRITE_ACK_SETUP: begin
++                        if ((!write_had_error && !sda_filtered) ||
++                            ( write_had_error &&  sda_filtered)) begin
+                             drive_scl_reg <= 1'b0;
+                             state         <= S_BYTE1_ACK;
+                         end
+                     end
+ 

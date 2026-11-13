@@ -1,0 +1,15 @@
+﻿# Windows temporary files
+Thumbs.db
+Desktop.ini
+
+# macOS temporary files
+.DS_Store
+
+# Editor temporary files
+*.swp
+*.swo
+*~
+*.bak
+
+# Temporary files
+*.tmp

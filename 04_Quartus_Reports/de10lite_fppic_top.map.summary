@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Wed Nov 11 22:37:32 2026
+Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+Revision Name : de10lite_fppic_top
+Top-level Entity Name : de10lite_fppic_top
+Family : MAX 10
+Total logic elements : 3,052
+    Total combinational functions : 2,385
+    Dedicated logic registers : 1,608
+Total registers : 1608
+Total pins : 123
+Total virtual pins : 0
+Total memory bits : 1,277,952
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0
