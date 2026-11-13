@@ -1,7 +1,0 @@
-Input archive: Sanath_converter.zip
-Archive entries: 335
-Archive files: 322
-RTL source files copied: 16
-Testbench files found: none identified by .v/.sv filename patterns in this archive.
-ASIC SDC supplied: no.
-Quartus reports are for MAX 10 FPGA, not SKY130 ASIC.

@@ -1,15 +1,23 @@
-﻿# Windows temporary files
-Thumbs.db
-Desktop.ini
-
-# macOS temporary files
+# Tiny Tapeout template outputs
 .DS_Store
+.idea
+*.vcd
+*.fst
+*.fst.hier
+runs
+tt_submission
+src/user_config.json
+src/config_merged.json
+src/config_merged_klayout_drc.json
+test/sim_build
+test/__pycache__/
+test/results.xml
+test/gate_level_netlist.v
 
-# Editor temporary files
-*.swp
-*.swo
-*~
-*.bak
-
-# Temporary files
+# Local simulations and tools
+__pycache__/
+*.pyc
+sim_build/
+work/
 *.tmp
+Thumbs.db

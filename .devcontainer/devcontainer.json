@@ -1,0 +1,10 @@
+{
+  "name": "FPPIC Tiny Tapeout SKY130",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "customizations": {
+    "vscode": {
+      "extensions": ["mshr-h.veriloghdl", "ms-python.python"]
+    }
+  },
+  "postCreateCommand": "python3 -m pip install -r test/requirements.txt"
+}
