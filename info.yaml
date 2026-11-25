@@ -1,0 +1,60 @@
+# Tiny Tapeout project information
+project:
+  title: "Four Protocol Peripheral Interface Chip (FPPIC)"
+  author: "BMSIT"
+  discord: ""
+  description: "Tiny Tapeout user module providing I2C/CAN host access to Wishbone-connected SPI Flash and UART peripherals."
+  language: "Verilog"
+  clock_hz: 50000000
+  # Six tiles arranged as 3 columns x 2 rows. This is a listed template size;
+  # actual fit and portal allocation must still be confirmed by the official flow.
+  tiles: "3x2"
+  top_module: "tt_um_fppic"
+  source_files:
+    - "fppic_defs.vh"
+    - "addr_decoder.v"
+    - "can_node.v"
+    - "chip_csr.v"
+    - "glitch_filter.v"
+    - "host_mux.v"
+    - "i2c_slave.v"
+    - "reset_sync.v"
+    - "spi_master.v"
+    - "strap_latch.v"
+    - "sync_2ff.v"
+    - "sync_fifo.v"
+    - "txn_tracker.v"
+    - "uart_16550.v"
+    - "wb_interconnect.v"
+    - "tt_um_fppic.v"
+
+pinout:
+  # Inputs
+  "ui[0]": "I2C_CAN_N strap: 1=I2C host, 0=CAN host"
+  "ui[1]": "I2C address strap bit 0"
+  "ui[2]": "I2C address strap bit 1"
+  "ui[3]": "I2C address strap bit 2"
+  "ui[4]": "I2C address strap bit 3"
+  "ui[5]": "CAN_RXD from external CAN transceiver"
+  "ui[6]": "SPI_MISO from W25Q64 Flash"
+  "ui[7]": "UART_RX"
+  # Outputs
+  "uo[0]": "CAN_TXD"
+  "uo[1]": "SPI_CS_N"
+  "uo[2]": "SPI_CLK"
+  "uo[3]": "SPI_MOSI"
+  "uo[4]": "UART_TX"
+  "uo[5]": "IRQ_N"
+  "uo[6]": "Unused, tied low"
+  "uo[7]": "Unused, tied low"
+  # Bidirectional pins
+  "uio[0]": "SDA, emulated open-drain"
+  "uio[1]": "SCL, emulated open-drain with clock stretching"
+  "uio[2]": "Unused"
+  "uio[3]": "Unused"
+  "uio[4]": "Unused"
+  "uio[5]": "Unused"
+  "uio[6]": "Unused"
+  "uio[7]": "Unused"
+
+yaml_version: 6
